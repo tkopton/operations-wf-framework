@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item9" object-name="workflow:name=generic" id="ac873e86-9430-43c5-8f0a-1bd82226efff" editor-version="2.0" version="0.0.0" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+    <display-name>tk-ariaOps-getObjectID</display-name>
+    <description></description>
+    <position y="10.0" x="40.0"/>
+    <input>
+        <param name="username" type="string"/>
+        <param name="password" type="SecureString"/>
+        <param name="skipTokenWF" type="boolean"/>
+        <param name="currentAccessToken" type="SecureString"/>
+        <param name="isSaaS" type="boolean"/>
+        <param name="resourceKind" type="string"/>
+        <param name="resourceName" type="string"/>
+    </input>
+    <output>
+        <param name="skipTokenWF_OUT" type="boolean"/>
+        <param name="objectID" type="string"/>
+    </output>
+    <attrib name="accessToken" type="SecureString">
+        <value encoded="n"></value>
+    </attrib>
+    <attrib name="baseUrl" type="string">
+        <value encoded="n">https://vrops01.internal.kopton.eu</value>
+    </attrib>
+    <attrib name="opMethod" type="string">
+        <value encoded="n">GET</value>
+    </attrib>
+    <attrib name="opUrl" type="string">
+        <value encoded="n"></value>
+    </attrib>
+    <attrib name="contentType" type="string">
+        <value encoded="n">application/json</value>
+    </attrib>
+    <attrib name="authtype" type="string">
+        <value encoded="n">NONE</value>
+    </attrib>
+    <attrib name="urlParamValues" type="Array/string">
+        <value encoded="n"/>
+    </attrib>
+    <attrib name="headers" type="Array/CompositeType(key:string,value:string):myHeaders">
+        <value encoded="n">[115:CompositeType(key:string,value:string):myHeaders#{5:23:value=string#application/json
+3:19:key=string#Content-Type
+},100:CompositeType(key:string,value:string):myHeaders#{5:8:value=string# 
+3:20:key=string#Authorization
+},109:CompositeType(key:string,value:string):myHeaders#{5:23:value=string#application/json
+3:13:key=string#Accept
+}]</value>
+    </attrib>
+    <attrib name="actionResult" type="CompositeType(statusCode:string,responseString:string):restResponse">
+        <value encoded="n"/>
+    </attrib>
+    <attrib name="authSource" type="string">
+        <value encoded="n">LOCAL</value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="110.0" x="500.0"/>
+    </workflow-item>
+    <workflow-item name="item3" out-name="item7" type="task" comparator="0">
+        <display-name>createBody</display-name>
+        <script encoded="false">// GET request</script>
+        <in-binding/>
+        <out-binding/>
+        <description>Simple task with custom script capability.</description>
+        <position y="120.0" x="240.0"/>
+    </workflow-item>
+    <workflow-item name="item5" out-name="item3" type="link" linked-workflow-id="a88facd7-588a-46c2-be66-0193f74311df" comparator="0">
+        <display-name>tk-ariaOps-GetToken-agnostic</display-name>
+        <in-binding>
+            <bind name="baseUrl" type="string" export-name="baseUrl"/>
+            <bind name="cspAPIToken" type="SecureString" export-name=""/>
+            <bind name="username" type="string" export-name="username"/>
+            <bind name="password" type="SecureString" export-name="password"/>
+            <bind name="isSaaS" type="boolean" export-name="isSaaS"/>
+            <bind name="authSource" type="string" export-name="authSource"/>
+            <bind name="authtype" type="string" export-name="authtype"/>
+        </in-binding>
+        <out-binding>
+            <bind name="accessToken" type="SecureString" export-name="accessToken"/>
+            <bind name="skipTokenWF" type="boolean" export-name="skipTokenWF_OUT"/>
+        </out-binding>
+        <description> </description>
+        <position y="120.0" x="120.0"/>
+    </workflow-item>
+    <workflow-item name="item6" out-name="item12" type="task" script-module="com.vmware.tkopton.vropsframework/tk_RESTCall_Transient" comparator="0">
+        <display-name>tk_RESTCall_Transient</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.tkopton.vropsframework").tk_RESTCall_Transient(baseUrl,username,password,opMethod,opUrl,urlParamValues,headers,contentType,content,authtype);
+</script>
+        <in-binding>
+            <bind name="baseUrl" type="string" export-name="baseUrl"/>
+            <bind name="username" type="string" export-name="username"/>
+            <bind name="password" type="SecureString" export-name="password"/>
+            <bind name="opMethod" type="string" export-name="opMethod"/>
+            <bind name="opUrl" type="string" export-name="opUrl"/>
+            <bind name="urlParamValues" type="Array/string" export-name="urlParamValues"/>
+            <bind name="headers" type="Array/CompositeType(key:string,value:string):myHeaders" export-name="headers"/>
+            <bind name="contentType" type="string" export-name="contentType"/>
+            <bind name="content" type="string"/>
+            <bind name="authtype" type="string" export-name="authtype"/>
+        </in-binding>
+        <out-binding>
+            <bind name="actionResult" type="CompositeType(statusCode:string,responseString:string):restResponse" export-name="actionResult"/>
+        </out-binding>
+        <description>Add a note to the workflow schema.</description>
+        <position y="70.0" x="360.0"/>
+    </workflow-item>
+    <workflow-item name="item7" out-name="item6" type="task" comparator="0">
+        <display-name>setEnvironment</display-name>
+        <script encoded="false">if(isSaaS) {
+    headers[1].value = "CSPToken " + accessToken;
+    baseUrl = "https://www.mgmt.cloud.vmware.com";
+    opUrl = "/vrops-cloud/suite-api/api/resources?resourceKind={param1}&amp;name={param2}";
+}
+else {
+    headers[1].value = "vRealizeOpsToken " + accessToken;
+    opUrl = "/suite-api/api/resources?resourceKind={param1}&amp;name={param2}";
+}
+
+var urlParamValues = new Array();
+urlParamValues.push(resourceKind);
+urlParamValues.push(resourceName);
+authtype = '';</script>
+        <in-binding>
+            <bind name="headers" type="Array/CompositeType(key:string,value:string):myHeaders" export-name="headers"/>
+            <bind name="urlParamValues" type="Array/string" export-name="urlParamValues"/>
+            <bind name="baseUrl" type="string" export-name="baseUrl"/>
+            <bind name="accessToken" type="SecureString" export-name="accessToken"/>
+            <bind name="authtype" type="string" export-name="authtype"/>
+            <bind name="isSaaS" type="boolean" export-name="isSaaS"/>
+            <bind name="resourceKind" type="string" export-name="resourceKind"/>
+            <bind name="resourceName" type="string" export-name="resourceName"/>
+        </in-binding>
+        <out-binding>
+            <bind name="headers" type="Array/CompositeType(key:string,value:string):myHeaders" export-name="headers"/>
+            <bind name="urlParamValues" type="Array/string" export-name="urlParamValues"/>
+            <bind name="opUrl" type="string" export-name="opUrl"/>
+            <bind name="baseUrl" type="string" export-name="baseUrl"/>
+            <bind name="accessToken" type="SecureString" export-name="accessToken"/>
+            <bind name="authtype" type="string" export-name="authtype"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="70.0" x="240.0"/>
+    </workflow-item>
+    <workflow-item name="item9" out-name="item11" alt-out-name="item10" type="condition" comparator="0">
+        <display-name>Decision</display-name>
+        <script encoded="false">// Generated by the system, cannot be edited
+return (skipTokenWF === true);</script>
+        <in-binding>
+            <bind name="skipTokenWF" type="boolean" export-name="skipTokenWF"/>
+        </in-binding>
+        <out-binding/>
+        <description>Custom decision based on a custom script.</description>
+        <condition name="skipTokenWF" type="boolean" comparator="0" label="null"></condition>
+        <position y="60.0" x="0.0"/>
+    </workflow-item>
+    <workflow-item name="item10" out-name="item5" type="task" comparator="0">
+        <display-name>setAuthType</display-name>
+        <script encoded="false">authtype = '';</script>
+        <in-binding/>
+        <out-binding>
+            <bind name="authtype" type="string" export-name="authtype"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="120.0" x="0.0"/>
+    </workflow-item>
+    <workflow-item name="item11" out-name="item3" type="task" comparator="0">
+        <display-name>setToken</display-name>
+        <script encoded="false">accessToken = currentAccessToken;</script>
+        <in-binding>
+            <bind name="currentAccessToken" type="SecureString" export-name="currentAccessToken"/>
+        </in-binding>
+        <out-binding>
+            <bind name="accessToken" type="SecureString" export-name="accessToken"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="70.0" x="120.0"/>
+    </workflow-item>
+    <workflow-item name="item12" out-name="item0" type="task" comparator="0">
+        <display-name>parseOutput</display-name>
+        <script encoded="false">// System.log("Result.Code: " + actionResult.statusCode)
+// System.log("Result.Response: " + actionResult.responseString);
+
+var jsonData = JSON.parse(actionResult.responseString);
+System.log("Aria Operations Object ID: " + jsonData.resourceList[0].identifier);
+objectID = jsonData.resourceList[0].identifier;</script>
+        <in-binding>
+            <bind name="actionResult" type="CompositeType(statusCode:string,responseString:string):restResponse" export-name="actionResult"/>
+        </in-binding>
+        <out-binding>
+            <bind name="objectID" type="string" export-name="objectID"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="120.0" x="360.0"/>
+    </workflow-item>
+</ns2:workflow>

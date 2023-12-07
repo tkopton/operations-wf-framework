@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item4" object-name="workflow:name=generic" id="a88facd7-588a-46c2-be66-0193f74311df" editor-version="2.0" version="0.0.0" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+    <display-name>tk-ariaOps-GetToken-agnostic</display-name>
+    <position y="0.0" x="60.0"/>
+    <input>
+        <param name="baseUrl" type="string"/>
+        <param name="cspAPIToken" type="SecureString"/>
+        <param name="username" type="string"/>
+        <param name="password" type="SecureString"/>
+        <param name="isSaaS" type="boolean"/>
+        <param name="authSource" type="string"/>
+        <param name="authtype" type="string"/>
+    </input>
+    <output>
+        <param name="accessToken" type="SecureString"/>
+        <param name="skipTokenWF" type="boolean"/>
+    </output>
+    <attrib name="opMethod" type="string">
+        <value encoded="n"></value>
+    </attrib>
+    <attrib name="opUrl" type="string">
+        <value encoded="n"></value>
+    </attrib>
+    <attrib name="urlParamValues" type="Array/string">
+        <value encoded="n"/>
+    </attrib>
+    <attrib name="headers" type="Array/CompositeType(key:string,value:string):myHeaders">
+        <value encoded="n">[109:CompositeType(key:string,value:string):myHeaders#{5:23:value=string#application/json
+3:13:key=string#accept
+}]</value>
+    </attrib>
+    <attrib name="contentType" type="string">
+        <value encoded="n"></value>
+    </attrib>
+    <attrib name="content" type="string">
+        <value encoded="n"></value>
+    </attrib>
+    <attrib name="myBaseUrl" type="string">
+        <value encoded="n"></value>
+    </attrib>
+    <attrib name="response" type="string">
+        <value encoded="n"></value>
+    </attrib>
+    <attrib name="actionResult" type="CompositeType(statusCode:string,responseString:string):restResponse">
+        <value encoded="n"/>
+    </attrib>
+    <attrib name="configCategoryName" type="string">
+        <value encoded="n">tkopton</value>
+    </attrib>
+    <attrib name="configAattribuTokenTTL" type="string">
+        <value encoded="n">accessTokenTTL</value>
+    </attrib>
+    <attrib name="configAattribuToken" type="string">
+        <value encoded="n">accessToken</value>
+    </attrib>
+    <attrib name="skipTokenRequest" type="boolean">
+        <value encoded="n">false</value>
+    </attrib>
+    <attrib name="accessTokenTTL" type="Date">
+        <value encoded="n"/>
+    </attrib>
+    <attrib name="configElement" type="string">
+        <value encoded="n">tk-ops-framework</value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="70.0" x="440.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item2" type="task" comparator="0">
+        <display-name>prepare inputs</display-name>
+        <script encoded="false">if (isSaaS) {
+    myBaseUrl = 'https://console.cloud.vmware.com';
+    opUrl = '/csp/gateway/am/api/auth/api-tokens/authorize';
+    contentType = 'application/x-www-form-urlencoded';
+    content = 'refresh_token=' + cspAPIToken;
+}
+else {
+    myBaseUrl = baseUrl;
+    opUrl = '/suite-api/api/auth/token/acquire';
+    contentType = 'application/json';
+    var body = {
+    "username": null,
+    "authSource": "Local",
+    "password": null,
+    "others": [],
+    "otherAttributes": {}
+    };
+    body.username = username;
+    body.password = password;
+    body.authSource = authSource;
+
+    content = JSON.stringify(body);
+
+    username = null;
+    password = null;
+}
+
+opMethod = 'POST';</script>
+        <in-binding>
+            <bind name="isSaaS" type="boolean" export-name="isSaaS"/>
+            <bind name="baseUrl" type="string" export-name="baseUrl"/>
+            <bind name="cspAPIToken" type="SecureString" export-name="cspAPIToken"/>
+            <bind name="username" type="string" export-name="username"/>
+            <bind name="password" type="SecureString" export-name="password"/>
+            <bind name="headers" type="Array/CompositeType(key:string,value:string):myHeaders" export-name="headers"/>
+            <bind name="authSource" type="string" export-name="authSource"/>
+        </in-binding>
+        <out-binding>
+            <bind name="opUrl" type="string" export-name="opUrl"/>
+            <bind name="contentType" type="string" export-name="contentType"/>
+            <bind name="content" type="string" export-name="content"/>
+            <bind name="myBaseUrl" type="string" export-name="myBaseUrl"/>
+            <bind name="opMethod" type="string" export-name="opMethod"/>
+            <bind name="headers" type="Array/CompositeType(key:string,value:string):myHeaders" export-name="headers"/>
+            <bind name="urlParamValues" type="Array/string" export-name="urlParamValues"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="10.0" x="260.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item3" type="task" script-module="com.vmware.tkopton.vropsframework/tk_RESTCall_Transient" comparator="0">
+        <display-name>tk_RESTCall_Transient</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.tkopton.vropsframework").tk_RESTCall_Transient(baseUrl,username,password,opMethod,opUrl,urlParamValues,headers,contentType,content,authtype);
+</script>
+        <in-binding>
+            <bind name="baseUrl" type="string" export-name="myBaseUrl">
+                <description></description>
+            </bind>
+            <bind name="username" type="string" export-name="username">
+                <description></description>
+            </bind>
+            <bind name="password" type="SecureString" export-name="password">
+                <description></description>
+            </bind>
+            <bind name="opMethod" type="string" export-name="opMethod">
+                <description></description>
+            </bind>
+            <bind name="opUrl" type="string" export-name="opUrl">
+                <description></description>
+            </bind>
+            <bind name="urlParamValues" type="Array/string" export-name="urlParamValues">
+                <description></description>
+            </bind>
+            <bind name="headers" type="Array/CompositeType(key:string,value:string):myHeaders" export-name="headers">
+                <description></description>
+            </bind>
+            <bind name="contentType" type="string" export-name="contentType">
+                <description></description>
+            </bind>
+            <bind name="content" type="string" export-name="content">
+                <description></description>
+            </bind>
+            <bind name="authtype" type="string" export-name="authtype">
+                <description></description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="actionResult" type="CompositeType(statusCode:string,responseString:string):restResponse" export-name="actionResult"/>
+        </out-binding>
+        <description>Add a note to the workflow schema.</description>
+        <position y="70.0" x="260.0"/>
+    </workflow-item>
+    <workflow-item name="item3" out-name="item0" type="task" comparator="0">
+        <display-name>parseOutputAndStoreToken</display-name>
+        <script encoded="false">// System.log("Result.Code: " + response.statusCode)
+// System.log("Result.Response: " + response.responseString);
+
+var jsonData = JSON.parse(actionResult.responseString);
+if(isSaaS) {
+    accessToken = jsonData.access_token;
+    tmp_accessTokenTTL = jsonData.expires_in;
+    now = new Date();
+    accessTokenTTL = tmp_accessTokenTTL + now.getTime(); //calculation has to be done
+}
+else {
+    accessToken = jsonData.token;
+    accessTokenTTL = jsonData.validity;
+}
+
+System.log("Access token: " + accessToken);
+System.log("Access token TTL: " + accessTokenTTL);
+
+var category = Server.getConfigurationElementCategoryWithPath(configCategoryName);
+
+if (category == null) {
+    System.log("NO CATEGORY!");
+    throw "Configuration element category " + configCategoryName + " not found";
+}
+
+//get elements
+var elements = category.configurationElements;
+
+//get elements content
+for (i = 0; i &lt; elements.length; i++) {
+    System.log("Found configuration element " + elements[i].name);
+    if (elements[i].name == configElement) {
+        var attributeTokenTTL = elements[i].getAttributeWithKey(configAattribuTokenTTL);
+        var attributeToken = elements[i].getAttributeWithKey(configAattribuToken);
+
+        if (attributeTokenTTL != null) {
+            System.log("Found attribute " + configAattribuTokenTTL + " in " + elements[i].name + " with value " + attributeTokenTTL.value);
+            const date1 = new Date(attributeTokenTTL.value);
+            const date2 = new Date();
+            System.log(date1.getTime());
+            System.log(date2.getTime());
+            var tokenTTL = date1.getTime() - 300000;
+            System.log(tokenTTL);
+            if (date2.getTime() &lt; tokenTTL) {
+                System.log('Token still valid');
+            }
+            else {
+                System.log('Token no longer valid or expiring in 5 minutes');
+                System.log(elements[i]);
+
+                const newDate = new Date(accessTokenTTL);               
+                elements[i].setAttributeWithKey(configAattribuTokenTTL, newDate);
+                elements[i].setAttributeWithKey(configAattribuToken, accessToken);
+            }
+        }
+        else {
+            throw "Attribute " + configAattribuTokenTTL + " not found!";
+        }
+    }
+}
+
+skipTokenWF = true;</script>
+        <in-binding>
+            <bind name="isSaaS" type="boolean" export-name="isSaaS"/>
+            <bind name="actionResult" type="CompositeType(statusCode:string,responseString:string):restResponse" export-name="actionResult"/>
+            <bind name="accessTokenTTL" type="Date" export-name="accessTokenTTL"/>
+            <bind name="configAattribuToken" type="string" export-name="configAattribuToken"/>
+            <bind name="configCategoryName" type="string" export-name="configCategoryName"/>
+            <bind name="configAattribuTokenTTL" type="string" export-name="configAattribuTokenTTL"/>
+            <bind name="configElement" type="string" export-name="configElement"/>
+        </in-binding>
+        <out-binding>
+            <bind name="accessToken" type="SecureString" export-name="accessToken"/>
+            <bind name="accessTokenTTL" type="Date" export-name="accessTokenTTL"/>
+            <bind name="skipTokenWF" type="boolean" export-name="skipTokenWF"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="10.0" x="400.0"/>
+    </workflow-item>
+    <workflow-item name="item4" out-name="item6" type="task" comparator="0">
+        <display-name>checkTokenTTL</display-name>
+        <script encoded="false">//get category
+var category = Server.getConfigurationElementCategoryWithPath(configCategoryName);
+
+if (category == null) {
+    System.log("NO CATEGORY!");
+    throw "Configuration element category " + configCategoryName + " not found";
+}
+
+//get elements
+var elements = category.configurationElements;
+
+//get elements content
+for (i = 0; i &lt; elements.length; i++) {
+    System.log("Found configuration element " + elements[i].name);
+    if (elements[i].name == configElement) {
+        var attribute = elements[i].getAttributeWithKey(configAattribuTokenTTL);
+
+        if (attribute != null) {
+            System.log("Found attribute " + configAattribuTokenTTL + " in " + elements[i].name + " with value " + attribute.value);
+            const date1 = new Date(attribute.value);
+            const date2 = new Date();
+            System.log(date1.getTime());
+            System.log(date2.getTime());
+            var tokenTTL = date1.getTime() - 300000;
+            System.log(tokenTTL);
+            if (date2.getTime() &lt; tokenTTL) {
+                System.log('Token still valid');
+                skipTokenRequest = true;
+                skipTokenWF = true;
+                accessToken = elements[i].getAttributeWithKey(configAattribuToken).value;
+            }
+            else {
+                System.log('Token no longer valid or expiring in 5 minutes');
+                skipTokenRequest = false;
+            }
+        }
+        else {
+            throw "Attribute " + configAattribuTokenTTL + " not found!";
+        }
+    }
+}</script>
+        <in-binding>
+            <bind name="configCategoryName" type="string" export-name="configCategoryName"/>
+            <bind name="configAattribuTokenTTL" type="string" export-name="configAattribuTokenTTL"/>
+            <bind name="configElement" type="string" export-name="configElement"/>
+            <bind name="configAattribuToken" type="string" export-name="configAattribuToken"/>
+        </in-binding>
+        <out-binding>
+            <bind name="skipTokenRequest" type="boolean" export-name="skipTokenRequest"/>
+            <bind name="accessToken" type="SecureString" export-name="accessToken"/>
+            <bind name="skipTokenWF" type="boolean" export-name="skipTokenWF"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="70.0" x="20.0"/>
+    </workflow-item>
+    <workflow-item name="item5" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="70.0" x="180.0"/>
+    </workflow-item>
+    <workflow-item name="item6" out-name="item1" alt-out-name="item5" type="condition" comparator="0">
+        <display-name>Decision</display-name>
+        <script encoded="false">// Generated by the system, cannot be edited
+return (skipTokenRequest === false);</script>
+        <in-binding>
+            <bind name="skipTokenRequest" type="boolean" export-name="skipTokenRequest"/>
+        </in-binding>
+        <out-binding/>
+        <description>Custom decision based on a custom script.</description>
+        <condition name="skipTokenRequest" type="boolean" comparator="1" label="null"></condition>
+        <position y="0.0" x="140.0"/>
+    </workflow-item>
+</ns2:workflow>

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item4" object-name="workflow:name=generic" id="89111a4f-edce-4035-be16-4ae939f80c49" editor-version="2.0" version="0.0.0" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+    <display-name>tk-getObjectIDsbyType</display-name>
+    <description>Returns an array of object IDs.
+@param {string} adapterKind Type of the adapter, like MSSQL.
+@param {string} adapterInstanceName Display name of the adapter instance, might be empty for all instances of a type.
+@return Array{string} List of object IDs.</description>
+    <position y="10.0" x="20.0"/>
+    <input>
+        <param name="adapterKindKey" type="string"/>
+        <param name="adapterInstanceName" type="Array/string"/>
+        <param name="vropsUserName" type="string"/>
+        <param name="vropsUserPassword" type="SecureString"/>
+        <param name="vropsUserAuthSource" type="string"/>
+        <param name="isSaaS" type="boolean"/>
+    </input>
+    <output>
+        <param name="adapterInstanceIDs" type="Array/string"/>
+        <param name="adapterInstanceNames" type="Array/string"/>
+    </output>
+    <attrib name="getAdapterInstances" type="REST:RESTOperation">
+        <value encoded="n">dunes://service.dunes.ch/CustomSDKObject?id='d527adad-f227-4685-bb5a-63c8f427a9f2:03dc2e49-bfcf-4f94-a31b-b66d067f2c7d'&amp;dunesName='REST:RESTOperation'</value>
+    </attrib>
+    <attrib name="vropsToken" type="SecureString">
+        <value encoded="n"></value>
+    </attrib>
+    <attrib name="aquireToken" type="REST:RESTOperation">
+        <value encoded="n">dunes://service.dunes.ch/CustomSDKObject?id='d527adad-f227-4685-bb5a-63c8f427a9f2:cc1fe82e-520a-4615-a8f5-859bd4714f0d'&amp;dunesName='REST:RESTOperation'</value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="10.0" x="580.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item0" type="task" comparator="0">
+        <display-name>executeRESTCall</display-name>
+        <script encoded="false">var adapterInstanceIDs = new Array();
+var adapterInstanceNames = new Array();
+var jsonResponse = null;
+var vropsToken = vropsToken;
+var params = new Array();
+params.push(adapterKindKey);
+var request = getAdapterInstances.createRequest(params, null);
+request.contentType = "application/json";
+request.setHeader("accept", "application/json");
+request.setHeader("Authorization", "vRealizeOpsToken " + vropsToken);
+
+var response = request.execute();
+var contentAsString = response.contentAsString;
+jsonResponse = JSON.parse(contentAsString);
+var instances = jsonResponse.adapterInstancesInfoDto;
+
+instances.forEach(testInstance);
+
+function testInstance(instanceObject) {
+    adapterInstanceIDs.push(instanceObject.id);
+    adapterInstanceNames.push(instanceObject.resourceKey.name);
+}</script>
+        <in-binding>
+            <bind name="vropsToken" type="SecureString" export-name="vropsToken"/>
+            <bind name="adapterKindKey" type="string" export-name="adapterKindKey"/>
+            <bind name="adapterInstanceName" type="Array/string" export-name="adapterInstanceName"/>
+            <bind name="getAdapterInstances" type="REST:RESTOperation" export-name="getAdapterInstances"/>
+        </in-binding>
+        <out-binding>
+            <bind name="adapterInstanceIDs" type="Array/string" export-name="adapterInstanceIDs"/>
+            <bind name="adapterInstanceNames" type="Array/string" export-name="adapterInstanceNames"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="20.0" x="420.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item1" type="task" script-module="com.vmware.tkopton.vropsframework/tk_vROps_getToken" comparator="0">
+        <display-name>tk_vROps_getToken</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.tkopton.vropsframework").tk_vROps_getToken(restOp, userName, userPassword, authSource);
+</script>
+        <in-binding>
+            <bind name="restOp" type="REST:RESTOperation" export-name="aquireToken"/>
+            <bind name="userName" type="string" export-name="vropsUserName"/>
+            <bind name="userPassword" type="SecureString" export-name="vropsUserPassword"/>
+            <bind name="authSource" type="string" export-name="vropsUserAuthSource"/>
+        </in-binding>
+        <out-binding>
+            <bind name="actionResult" type="SecureString" export-name="vropsToken"/>
+        </out-binding>
+        <description>Add a note to the workflow schema.</description>
+        <position y="90.0" x="120.0"/>
+    </workflow-item>
+    <workflow-item name="item3" type="end" end-mode="0" comparator="0">
+        <position y="120.0" x="360.0"/>
+    </workflow-item>
+    <workflow-item name="item4" out-name="item5" alt-out-name="item2" type="condition" comparator="0">
+        <display-name>Decision</display-name>
+        <script encoded="false">// Generated by the system, cannot be edited
+return (isSaaS === true);</script>
+        <in-binding>
+            <bind name="isSaaS" type="boolean" export-name="isSaaS"/>
+        </in-binding>
+        <out-binding/>
+        <description>Custom decision based on a custom script.</description>
+        <condition name="isSaaS" type="boolean" comparator="0" label="null"></condition>
+        <position y="80.0" x="-20.0"/>
+    </workflow-item>
+    <workflow-item name="item5" type="task" script-module="com.vmware.tkopton.vropsframework/tk_vROps_getToken_SaaS" comparator="0">
+        <display-name>tk_vROps_getToken_SaaS</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.tkopton.vropsframework").tk_vROps_getToken_SaaS(restOp,cspApiToken);
+</script>
+        <in-binding>
+            <bind name="restOp" type="REST:RESTOperation" export-name="">
+                <description></description>
+            </bind>
+            <bind name="cspApiToken" type="SecureString" export-name="">
+                <description></description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="actionResult" type="SecureString" export-name=""/>
+        </out-binding>
+        <description>Add a note to the workflow schema.</description>
+        <position y="30.0" x="120.0"/>
+    </workflow-item>
+</ns2:workflow>
